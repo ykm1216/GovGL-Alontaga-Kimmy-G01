@@ -1,0 +1,26 @@
+/* GovGL shared theme: institutional green, Open Sans */
+:root{--bg:#EEF2EE;--surface:#fff;--ink:#1D2B21;--muted:#5C6B5F;--line:#D3DDD3;
+--nav:#3A8A3E;--green:#2E7A32;--deep:#1F5A24;--tint:#E6F2E4;--gold:#F4C430}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+font:400 15px/1.55 "Open Sans","Segoe UI",Arial,sans-serif}
+a{color:var(--green)}
+.brandbar{background:var(--surface);padding:14px 24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.brand-name{font-size:28px;font-weight:700;color:var(--green);line-height:1}
+.brand-tag{font-size:13px;color:var(--muted);margin-top:4px}
+.brand-sys{margin-left:auto;font-size:20px;font-weight:700;color:var(--green);text-align:right}
+.brand-sys small{display:block;font-size:12px;font-weight:600;color:var(--muted)}
+.navband{background:var(--nav);border-bottom:4px solid var(--gold);display:flex;justify-content:center;flex-wrap:wrap}
+.navband a{color:#fff;text-decoration:none;padding:12px 20px}
+.navband a:hover{background:rgba(0,0,0,.14)}
+.page{max-width:1040px;margin:0 auto;padding:24px 16px 40px}
+.crumb{font-size:12px;color:var(--muted);text-transform:uppercase;margin:0}
+h1{font-size:21px;color:var(--deep);margin:2px 0 6px}
+.rule{border:0;border-top:2px solid var(--tint);margin:0 0 18px}
+.panel{background:var(--surface);border:1px solid var(--line);padding:18px 20px}
+.msg{padding:9px 12px;border-left:4px solid;font-size:14px;margin-bottom:12px}
+.msg.success{background:#E2F3E2;color:#1F6B2A;border-color:#1F6B2A}
+.msg.error{background:#FCE9E7;color:#B3261E;border-color:#B3261E}
+.site-footer{background:var(--nav);color:#fff;margin-top:24px}
+.site-footer .links{display:flex;justify-content:space-around;flex-wrap:wrap;padding:16px}
+.site-footer .copy{background:rgba(0,0,0,.2);text-align:center;font-size:12px;padding:10px;text-transform:uppercase}

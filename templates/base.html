@@ -1,0 +1,36 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}GovGL{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+  <header class="brandbar">
+    <div>
+      <div class="brand-name">GovGL</div>
+      <div class="brand-tag">Quotations and Government Guarantee Letters Tracker</div>
+    </div>
+    <div class="brand-sys">Online Services<small>Secure account access</small></div>
+  </header>
+  <nav class="navband">
+    <a href="{% url 'home' %}">Home</a>
+  </nav>
+  <main class="page">
+    {% if messages %}
+      {% for message in messages %}
+        <div class="msg {{ message.tags }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+    {% block content %}{% endblock %}
+  </main>
+  <footer class="site-footer">
+    <div class="links"><span>Contact us</span><span>Data Privacy Statement</span><span>Disclaimer</span></div>
+    <div class="copy">© 2026 GovGL. Academic project.</div>
+  </footer>
+</body>
+</html>
