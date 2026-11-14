@@ -24,3 +24,18 @@ h1{font-size:21px;color:var(--deep);margin:2px 0 6px}
 .site-footer{background:var(--nav);color:#fff;margin-top:24px}
 .site-footer .links{display:flex;justify-content:space-around;flex-wrap:wrap;padding:16px}
 .site-footer .copy{background:rgba(0,0,0,.2);text-align:center;font-size:12px;padding:10px;text-transform:uppercase}
+
+/* Forms */
+.narrow{max-width:760px;margin:0 auto}
+fieldset{border:1px solid var(--line);margin:0 0 14px;padding:6px 16px 16px;min-width:0}
+legend{padding:0 6px;color:#6F7F3E;font-size:17px;font-weight:600}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:4px 16px}
+label{display:block;font-size:13px;font-weight:600;margin:10px 0 3px}
+label i{color:#B3261E;font-style:normal}
+input[type=text],input[type=email],input[type=password],select{width:100%;font:inherit;font-size:14px;padding:8px 10px;border:1px solid var(--line);border-radius:3px;background:#fff;color:var(--ink)}
+input:focus,select:focus,.btn:focus-visible{outline:3px solid var(--gold);outline-offset:-1px}
+.help{font-size:12px;color:var(--muted);margin:3px 0 0}
+.err{font-size:13px;color:#B3261E;margin:3px 0 0}
+.btn{display:inline-block;font:inherit;font-weight:600;background:var(--green);color:#fff;border:0;border-radius:3px;padding:9px 22px;cursor:pointer;text-decoration:none}
+.btn.alt{background:transparent;color:var(--green);border:1px solid var(--green)}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
