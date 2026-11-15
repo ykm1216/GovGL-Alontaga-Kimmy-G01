@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Log in | GovGL{% endblock %}
+{% block content %}
+<div class="login-box">
+  <div class="login-side">
+    <h2>Welcome to GovGL</h2>
+    <p>Track your guarantee letter applications, keep your medical records in one place, and compare medicine prices.</p>
+    <p>Your information is protected under the Data Privacy Act.</p>
+  </div>
+  <div class="login-form">
+    <p class="crumb">Online services</p>
+    <h1>Log in</h1>
+    <hr class="rule">
+    <form method="post" novalidate>
+      {% csrf_token %}
+      <div class="field">
+        <label for="{{ form.username.id_for_label }}">Username</label>
+        {{ form.username }}
+      </div>
+      <div class="field">
+        <label for="{{ form.password.id_for_label }}">Password</label>
+        {{ form.password }}
+      </div>
+      <div class="actions">
+        <button type="submit" class="btn">Log in</button>
+      </div>
+    </form>
+    <p class="help" style="margin-top:14px">No account yet? <a href="{% url 'register' %}">Open an account</a></p>
+  </div>
+</div>
+{% endblock %}
