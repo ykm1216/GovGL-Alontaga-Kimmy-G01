@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Dashboard | GovGL{% endblock %}
+{% block content %}
+<p class="crumb">My account</p>
+<h1>Dashboard</h1>
+<hr class="rule">
+<div class="panel">
+  <p>Hello, <strong>{{ user.first_name|default:user.username }}</strong>. You are logged in.</p>
+  <p class="help">Username: {{ user.username }} &middot; E-mail: {{ user.email }}</p>
+</div>
+{% endblock %}

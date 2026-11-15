@@ -20,6 +20,7 @@
   <nav class="navband">
     <a href="{% url 'home' %}">Home</a>
     {% if user.is_authenticated %}
+      <a href="{% url 'dashboard' %}">Dashboard</a>
       <span class="hello">Signed in as {{ user.username }}</span>
       <form method="post" action="{% url 'logout' %}">
         {% csrf_token %}
