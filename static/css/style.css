@@ -47,3 +47,9 @@ input:focus,select:focus,.btn:focus-visible{outline:3px solid var(--gold);outlin
 .login-side p{margin:0 0 10px;font-size:14px}
 .login-form{padding:24px}
 @media(max-width:640px){.login-box{grid-template-columns:1fr}}
+
+/* Logout button in nav */
+.navband form{display:inline;margin:0}
+.navband .hello{color:#fff;padding:12px 20px;opacity:.85}
+.navband .linkbtn{background:none;border:0;color:#fff;font:inherit;padding:12px 20px;cursor:pointer}
+.navband .linkbtn:hover{background:rgba(0,0,0,.14)}

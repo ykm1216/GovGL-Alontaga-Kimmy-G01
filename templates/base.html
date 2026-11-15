@@ -19,7 +19,13 @@
   </header>
   <nav class="navband">
     <a href="{% url 'home' %}">Home</a>
-    {% if not user.is_authenticated %}
+    {% if user.is_authenticated %}
+      <span class="hello">Signed in as {{ user.username }}</span>
+      <form method="post" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button type="submit" class="linkbtn">Log out</button>
+      </form>
+    {% else %}
       <a href="{% url 'login' %}">Log in</a>
       <a href="{% url 'register' %}">Register</a>
     {% endif %}
