@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard | GovGL{% endblock %}
+{% block content %}
+<div class="app">
+  <aside class="menu">
+    <div class="who">Signed in as<b>{{ user.username }}</b>{{ user.get_role_display }}</div>
+    <a class="on" href="{% url 'admin_dashboard' %}">Dashboard</a>
+  </aside>
+  <div>
+    <p class="crumb">Administrator</p>
+    <h1>System overview</h1>
+    <hr class="rule">
+    <div class="sum">
+      <div><b>{{ total_users }}</b><span>Registered users</span></div>
+      <div><b>{{ total_patients }}</b><span>Patients</span></div>
+      <div><b>{{ total_admins }}</b><span>Administrators</span></div>
+    </div>
+    <div class="panel">
+      <h2 class="sec">Recently registered users</h2>
+      <div class="scroll">
+        <table>
+          <tr><th>Username</th><th>Name</th><th>E-mail address</th><th>Role</th><th>Joined</th></tr>
+          {% for u in recent_users %}
+          <tr>
+            <td>{{ u.username }}</td>
+            <td>{{ u.get_full_name|default:"-" }}</td>
+            <td>{{ u.email }}</td>
+            <td>{{ u.get_role_display }}</td>
+            <td>{{ u.date_joined|date:"M d, Y" }}</td>
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

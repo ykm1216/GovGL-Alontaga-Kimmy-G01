@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Patient Dashboard | GovGL{% endblock %}
+{% block content %}
+<div class="app">
+  <aside class="menu">
+    <div class="who">Signed in as<b>{{ user.username }}</b>{{ user.get_role_display }}</div>
+    <a class="on" href="{% url 'patient_dashboard' %}">Dashboard</a>
+  </aside>
+  <div>
+    <p class="crumb">Patient</p>
+    <h1>Welcome, {{ user.first_name|default:user.username }}</h1>
+    <hr class="rule">
+    <div class="panel">
+      <h2 class="sec">Account details</h2>
+      <p>Name: {{ user.get_full_name|default:"-" }}</p>
+      <p>E-mail address: {{ user.email }}</p>
+      <p>Mobile no.: {{ user.contact_number|default:"-" }}</p>
+    </div>
+  </div>
+</div>
+{% endblock %}
