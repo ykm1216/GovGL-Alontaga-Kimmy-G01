@@ -68,11 +68,17 @@ def dashboard_view(request):
 
 @login_required
 def patient_dashboard_view(request):
+    if request.user.role != CustomUser.Role.PATIENT:
+        messages.error(request, "You do not have access to that page.")
+        return redirect("dashboard")
     return render(request, "accounts/patient_dashboard.html")
 
 
 @login_required
 def admin_dashboard_view(request):
+    if request.user.role != CustomUser.Role.ADMIN:
+        messages.error(request, "You do not have access to that page.")
+        return redirect("dashboard")
     users = CustomUser.objects.order_by("-date_joined")
     context = {
         "total_users": users.count(),
