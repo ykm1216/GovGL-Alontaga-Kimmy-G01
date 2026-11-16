@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}My Profile | GovGL{% endblock %}
+{% block content %}
+<div class="narrow panel">
+  <p class="crumb">My account</p>
+  <h1>User profile</h1>
+  <hr class="rule">
+
+  <p class="help">Username: <strong>{{ user.username }}</strong> &middot; Role: <strong>{{ user.get_role_display }}</strong></p>
+
+  <form method="post" novalidate>
+    {% csrf_token %}
+    <fieldset>
+      <legend>Personal details</legend>
+      <div class="grid">
+        <div class="field">
+          <label for="{{ form.first_name.id_for_label }}">First name <i>*</i></label>
+          {{ form.first_name }}
+          {% for e in form.first_name.errors %}<p class="err">{{ e }}</p>{% endfor %}
+        </div>
+        <div class="field">
+          <label for="{{ form.last_name.id_for_label }}">Last name <i>*</i></label>
+          {{ form.last_name }}
+          {% for e in form.last_name.errors %}<p class="err">{{ e }}</p>{% endfor %}
+        </div>
+        <div class="field">
+          <label for="{{ form.email.id_for_label }}">E-mail address <i>*</i></label>
+          {{ form.email }}
+          {% for e in form.email.errors %}<p class="err">{{ e }}</p>{% endfor %}
+        </div>
+        <div class="field">
+          <label for="{{ form.contact_number.id_for_label }}">Mobile no. <i>*</i></label>
+          {{ form.contact_number }}
+          {% for e in form.contact_number.errors %}<p class="err">{{ e }}</p>{% endfor %}
+        </div>
+      </div>
+    </fieldset>
+    <div class="actions">
+      <button type="submit" class="btn">Save changes</button>
+      <a class="btn alt" href="{% url 'dashboard' %}">Back to dashboard</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
