@@ -4,6 +4,14 @@ from django.contrib.auth.forms import UserCreationForm
 from .models import CustomUser
 
 
+def clean_mobile(value):
+    """Mobile number must be 11 digits starting with 09."""
+    number = value.replace(" ", "").replace("-", "")
+    if not (number.isdigit() and len(number) == 11 and number.startswith("09")):
+        raise forms.ValidationError("Enter an 11-digit mobile number starting with 09.")
+    return number
+
+
 class RegistrationForm(UserCreationForm):
     """Registration form.
 
@@ -27,10 +35,7 @@ class RegistrationForm(UserCreationForm):
         return email
 
     def clean_contact_number(self):
-        number = self.cleaned_data["contact_number"].replace(" ", "").replace("-", "")
-        if not (number.isdigit() and len(number) == 11 and number.startswith("09")):
-            raise forms.ValidationError("Enter an 11-digit mobile number starting with 09.")
-        return number
+        return clean_mobile(self.cleaned_data["contact_number"])
 
     def save(self, commit=True):
         user = super().save(commit=False)
@@ -38,3 +43,26 @@ class RegistrationForm(UserCreationForm):
         if commit:
             user.save()
         return user
+
+
+class ProfileForm(forms.ModelForm):
+    """Lets a logged-in user update their own details."""
+
+    first_name = forms.CharField(max_length=150, required=True, label="First name")
+    last_name = forms.CharField(max_length=150, required=True, label="Last name")
+    email = forms.EmailField(required=True, label="E-mail address")
+    contact_number = forms.CharField(max_length=20, required=True, label="Mobile no.")
+
+    class Meta:
+        model = CustomUser
+        fields = ("first_name", "last_name", "email", "contact_number")
+
+    def clean_email(self):
+        email = self.cleaned_data["email"].strip().lower()
+        taken = CustomUser.objects.filter(email__iexact=email).exclude(pk=self.instance.pk)
+        if taken.exists():
+            raise forms.ValidationError("An account with this e-mail address already exists.")
+        return email
+
+    def clean_contact_number(self):
+        return clean_mobile(self.cleaned_data["contact_number"])

@@ -6,7 +6,7 @@ from django.shortcuts import redirect, render
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 
-from .forms import RegistrationForm
+from .forms import ProfileForm, RegistrationForm
 from .models import CustomUser
 
 
@@ -87,3 +87,19 @@ def admin_dashboard_view(request):
         "recent_users": users[:10],
     }
     return render(request, "accounts/admin_dashboard.html", context)
+
+
+@login_required
+def profile_view(request):
+    # Always uses request.user, so people can only view and edit their own profile.
+    if request.method == "POST":
+        form = ProfileForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Your profile was updated successfully.")
+            return redirect("profile")
+        messages.error(request, "Please correct the errors below.")
+    else:
+        form = ProfileForm(instance=request.user)
+
+    return render(request, "accounts/profile.html", {"form": form})
