@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}Application #{{ application.pk }} | GovGL{% endblock %}
+{% block content %}
+<div class="app">
+  <aside class="menu">
+    <div class="who">Signed in as<b>{{ user.username }}</b>{{ user.get_role_display }}</div>
+    <a href="{% url 'patient_dashboard' %}">Dashboard</a>
+    <a class="on" href="{% url 'application_list' %}">My applications</a>
+    <a href="{% url 'application_create' %}">New application</a>
+  </aside>
+  <div>
+    <p class="crumb">Patient / Beneficiary · Application #{{ application.pk }}</p>
+    <h1>{{ application.patient_name }} · {{ application.get_program_display }}</h1>
+    <hr class="rule">
+    <div class="panel application-summary">
+      <span class="status status-{{ application.status|lower }}">{{ application.get_status_display }}</span>
+      {% if application.admin_note %}<p><strong>Reviewer remarks:</strong> {{ application.admin_note }}</p>{% endif %}
+      <p><strong>Type:</strong> {{ application.get_assistance_type_display }}</p>
+      <p><strong>Hospital:</strong> {{ application.hospital }}, {{ application.city }}</p>
+      <p><strong>Diagnosis:</strong> {{ application.diagnosis }}</p>
+      <p><strong>Amount requested:</strong> PHP {{ application.amount_requested|floatformat:2 }}</p>
+      {% if application.submitted_at %}<p><strong>Submitted:</strong> {{ application.submitted_at|date:"M d, Y" }}</p>{% endif %}
+    </div>
+
+    <section class="panel section-panel">
+      <h2 class="sec">Document checklist</h2>
+      <p class="help">Files must be PDF, JPG, or PNG and 5 MB or smaller.</p>
+      <div class="document-list">
+        {% for item in checklist %}
+        <div class="document-row">
+          <div class="document-title">
+            <strong>{{ item.label }}</strong>
+            {% if item.required %}<span class="required-tag">Required</span>{% else %}<span class="help">Optional</span>{% endif %}
+            {% if item.document %}
+              <div class="help">{{ item.document.file.name|cut:"applications/" }} · {{ item.document.get_review_status_display }}</div>
+              {% if item.document.review_note %}<div class="err">{{ item.document.review_note }}</div>{% endif %}
+            {% else %}
+              <div class="help">Not uploaded</div>
+            {% endif %}
+          </div>
+          {% if application.status == "DRAFT" %}
+          <div class="document-actions">
+            <form method="post" enctype="multipart/form-data" action="{% url 'document_upload' application.pk item.kind %}">
+              {% csrf_token %}
+              <label class="file-label">{{ document_upload_form.file }}<span>{% if item.document %}Replace{% else %}Choose file{% endif %}</span></label>
+              {% for error in document_upload_form.file.errors %}<p class="err">{{ error }}</p>{% endfor %}
+              <button type="submit" class="btn small">Upload</button>
+            </form>
+            {% if item.document %}
+            <form method="post" action="{% url 'document_delete' application.pk item.document.pk %}">
+              {% csrf_token %}<button type="submit" class="text-button">Remove</button>
+            </form>
+            {% endif %}
+          </div>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="panel section-panel">
+      <h2 class="sec">Quotations</h2>
+      {% if required_quotes %}<p class="help">At least {{ required_quotes }} received quotation(s) required; {{ received_quotes }} recorded.</p>{% endif %}
+      {% if application.quotations.all %}
+      <div class="scroll">
+        <table>
+          <tr><th>Supplier</th><th>Items</th><th>Status</th><th>Amount</th><th>File</th>{% if application.status == "DRAFT" %}<th></th>{% endif %}</tr>
+          {% for quotation in application.quotations.all %}
+          <tr>
+            <td>{{ quotation.supplier }}</td><td>{{ quotation.items }}</td>
+            <td>{{ quotation.get_status_display }}</td>
+            <td>{% if quotation.amount %}PHP {{ quotation.amount|floatformat:2 }}{% else %}-{% endif %}</td>
+            <td>{% if quotation.file %}<a href="{% url 'quotation_download' quotation.pk %}">Open file</a>{% else %}-{% endif %}</td>
+            {% if application.status == "DRAFT" %}
+            <td><form method="post" action="{% url 'quotation_delete' application.pk quotation.pk %}">{% csrf_token %}<button class="text-button" type="submit">Remove</button></form></td>
+            {% endif %}
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
+      {% else %}<p>No quotations recorded.</p>{% endif %}
+      {% if application.status == "DRAFT" %}
+      <form class="quote-form" method="post" enctype="multipart/form-data" action="{% url 'quotation_create' application.pk %}">
+        {% csrf_token %}
+        <div class="grid">
+          {% for field in quotation_form %}
+          <div class="field">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}
+            {% for error in field.errors %}<p class="err">{{ error }}</p>{% endfor %}
+          </div>
+          {% endfor %}
+        </div>
+        <button class="btn small" type="submit">Record quotation</button>
+      </form>
+      {% endif %}
+    </section>
+
+    <div class="actions">
+      <a class="btn alt" href="{% url 'application_list' %}">Back to applications</a>
+      {% if application.status == "DRAFT" %}
+        <a class="btn alt" href="{% url 'application_edit' application.pk %}">Edit details</a>
+        <form method="post" action="{% url 'application_submit' application.pk %}">
+          {% csrf_token %}<button class="btn" type="submit">Submit application</button>
+        </form>
+        <form method="post" action="{% url 'application_delete' application.pk %}" onsubmit="return confirm('Delete this draft application?');">
+          {% csrf_token %}<button class="btn danger" type="submit">Delete draft</button>
+        </form>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

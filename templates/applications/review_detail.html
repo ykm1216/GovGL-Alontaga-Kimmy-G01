@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Review application #{{ application.pk }} | GovGL{% endblock %}
+{% block content %}
+<div class="app">
+  <aside class="menu">
+    <div class="who">Signed in as<b>{{ user.username }}</b>{{ user.get_role_display }}</div>
+    <a href="{% url 'admin_dashboard' %}">Dashboard</a>
+    <a class="on" href="{% url 'review_list' %}">Review applications</a>
+  </aside>
+  <div>
+    <p class="crumb">Administrator · Review application #{{ application.pk }}</p>
+    <h1>{{ application.patient_name }} · {{ application.get_program_display }}</h1>
+    <hr class="rule">
+    <section class="panel section-panel">
+      <h2 class="sec">Application details</h2>
+      <p><strong>Filed by:</strong> {{ application.user.get_full_name|default:application.user.username }} ({{ application.user.email }})</p>
+      <p><strong>Type:</strong> {{ application.get_assistance_type_display }}</p>
+      <p><strong>Hospital:</strong> {{ application.hospital }}, {{ application.city }}</p>
+      <p><strong>Diagnosis:</strong> {{ application.diagnosis }}</p>
+      <p><strong>Amount requested:</strong> PHP {{ application.amount_requested|floatformat:2 }}</p>
+    </section>
+    <section class="panel section-panel">
+      <h2 class="sec">Documents</h2>
+      {% for item in checklist %}
+      <div class="review-document">
+        <div>
+          <strong>{{ item.document.get_kind_display }}</strong>
+          {% if item.required %}<span class="required-tag">Required</span>{% endif %}
+          <div class="help"><a href="{% url 'document_download' item.document.pk %}">{{ item.document.file.name|cut:"applications/" }}</a> · {{ item.document.get_review_status_display }}</div>
+        </div>
+        <form method="post" action="{% url 'document_review' application.pk item.document.pk %}" class="review-form">
+          {% csrf_token %}
+          {% for field in item.form %}
+          <div class="field">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}
+            {% for error in field.errors %}<p class="err">{{ error }}</p>{% endfor %}
+          </div>
+          {% endfor %}
+          <button type="submit" class="btn small">Save</button>
+        </form>
+      </div>
+      {% empty %}
+      <p>No documents were uploaded.</p>
+      {% endfor %}
+    </section>
+    <section class="panel section-panel">
+      <h2 class="sec">Quotations</h2>
+      {% if application.quotations.all %}
+      <div class="scroll">
+        <table>
+          <tr><th>Supplier</th><th>Items</th><th>Status</th><th>Amount</th><th>File</th></tr>
+          {% for quotation in application.quotations.all %}
+          <tr>
+            <td>{{ quotation.supplier }}</td><td>{{ quotation.items }}</td>
+            <td>{{ quotation.get_status_display }}</td>
+            <td>{% if quotation.amount %}PHP {{ quotation.amount|floatformat:2 }}{% else %}-{% endif %}</td>
+            <td>{% if quotation.file %}<a href="{% url 'quotation_download' quotation.pk %}">Open file</a>{% else %}-{% endif %}</td>
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
+      {% else %}<p>No quotations recorded.</p>{% endif %}
+    </section>
+    <section class="panel section-panel">
+      <h2 class="sec">Decision</h2>
+      <p class="help">To approve, accept every required document and record the required received quotations. A reason is required to reject.</p>
+      <form method="post" action="{% url 'application_review' application.pk %}">
+        {% csrf_token %}
+        {% for field in review_form %}
+        <div class="field">
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}
+          {% for error in field.errors %}<p class="err">{{ error }}</p>{% endfor %}
+        </div>
+        {% endfor %}
+        <button type="submit" class="btn">Save decision</button>
+        <a class="btn alt" href="{% url 'review_list' %}">Back to list</a>
+      </form>
+    </section>
+  </div>
+</div>
+{% endblock %}
