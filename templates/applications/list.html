@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}My applications | GovGL{% endblock %}
+{% block content %}
+<div class="app">
+  <aside class="menu">
+    <div class="who">Signed in as<b>{{ user.username }}</b>{{ user.get_role_display }}</div>
+    <a href="{% url 'patient_dashboard' %}">Dashboard</a>
+    <a class="on" href="{% url 'application_list' %}">My applications</a>
+    <a href="{% url 'application_create' %}">New application</a>
+  </aside>
+  <div>
+    <p class="crumb">Patient / Beneficiary</p>
+    <h1>My applications</h1>
+    <hr class="rule">
+    <div class="actions page-actions">
+      <a class="btn" href="{% url 'application_create' %}">New application</a>
+    </div>
+    <div class="panel">
+      {% if applications %}
+        <div class="scroll">
+          <table>
+            <tr><th>Application</th><th>Program</th><th>Patient</th><th>Hospital</th><th>Status</th><th>Updated</th><th></th></tr>
+            {% for application in applications %}
+            <tr>
+              <td>#{{ application.pk }}</td>
+              <td>{{ application.get_program_display }}</td>
+              <td>{{ application.patient_name }}</td>
+              <td>{{ application.hospital }}</td>
+              <td><span class="status status-{{ application.status|lower }}">{{ application.get_status_display }}</span></td>
+              <td>{{ application.updated_at|date:"M d, Y" }}</td>
+              <td><a href="{% url 'application_detail' application.pk %}">Open</a></td>
+            </tr>
+            {% endfor %}
+          </table>
+        </div>
+      {% else %}
+        <p>You have not started an application yet.</p>
+        <a class="btn" href="{% url 'application_create' %}">Start an application</a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
