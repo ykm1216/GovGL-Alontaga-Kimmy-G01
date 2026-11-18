@@ -5,11 +5,18 @@
   <aside class="menu">
     <div class="who">Signed in as<b>{{ user.username }}</b>{{ user.get_role_display }}</div>
     <a class="on" href="{% url 'admin_dashboard' %}">Dashboard</a>
+    <a href="{% url 'review_list' %}">Review applications</a>
+    <a href="{% url 'profile' %}">My profile</a>
   </aside>
   <div>
     <p class="crumb">Administrator</p>
     <h1>System overview</h1>
     <hr class="rule">
+    <div class="panel dashboard-feature">
+      <h2 class="sec">Application review</h2>
+      <p>Review submitted applications, supporting documents, and recorded quotations.</p>
+      <a class="btn" href="{% url 'review_list' %}">Review applications</a>
+    </div>
     <div class="sum">
       <div><b>{{ total_users }}</b><span>Registered users</span></div>
       <div><b>{{ total_patients }}</b><span>Patients</span></div>
