@@ -32,7 +32,7 @@ legend{padding:0 6px;color:#6F7F3E;font-size:17px;font-weight:600}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:4px 16px}
 label{display:block;font-size:13px;font-weight:600;margin:10px 0 3px}
 label i{color:#B3261E;font-style:normal}
-input[type=text],input[type=email],input[type=password],select{width:100%;font:inherit;font-size:14px;padding:8px 10px;border:1px solid var(--line);border-radius:3px;background:#fff;color:var(--ink)}
+input[type=text],input[type=email],input[type=password],input[type=number],input[type=file],select,textarea{width:100%;font:inherit;font-size:14px;padding:8px 10px;border:1px solid var(--line);border-radius:3px;background:#fff;color:var(--ink)}
 input:focus,select:focus,.btn:focus-visible{outline:3px solid var(--gold);outline-offset:-1px}
 .help{font-size:12px;color:var(--muted);margin:3px 0 0}
 .err{font-size:13px;color:#B3261E;margin:3px 0 0}
@@ -73,3 +73,27 @@ h2.sec{font-size:16px;color:#6F7F3E;margin:0 0 8px;font-weight:600}
 table{width:100%;border-collapse:collapse;font-size:14px}
 th{background:var(--tint);color:var(--deep);text-align:left;padding:8px 10px;font-weight:600;white-space:nowrap}
 td{padding:9px 10px;border-top:1px solid var(--line);white-space:nowrap}
+
+/* Guarantee Letter applications */
+.dashboard-feature,.section-panel{margin-top:14px}
+.page-actions{margin-bottom:14px}
+.application-summary p{margin:8px 0}
+.status{display:inline-block;padding:3px 9px;border-radius:12px;background:var(--tint);color:var(--deep);font-size:12px;font-weight:700}
+.status-approved{background:#E2F3E2;color:#1F6B2A}
+.status-rejected{background:#FCE9E7;color:#B3261E}
+.status-under_review,.status-submitted{background:#FFF4D6;color:#725400}
+.document-row,.review-document{display:grid;grid-template-columns:minmax(0,1fr) minmax(230px,340px);gap:14px;padding:12px 0;border-top:1px solid var(--line);align-items:center}
+.document-row:first-child,.review-document:first-child{border-top:0}
+.document-title strong{margin-right:8px}
+.required-tag{display:inline-block;background:var(--tint);color:var(--deep);font-size:11px;padding:2px 6px;border-radius:2px}
+.document-actions form{margin:4px 0}
+.file-label{display:flex;align-items:center;gap:8px}
+.file-label input{min-width:0;padding:5px;font-size:12px}
+.btn.small{padding:6px 12px;font-size:13px}
+.btn.danger{background:#A52A24}
+.text-button{background:none;border:0;color:var(--green);font:inherit;text-decoration:underline;cursor:pointer;padding:4px}
+.quote-form{border-top:1px solid var(--line);margin-top:14px;padding-top:12px}
+.review-form{display:grid;grid-template-columns:1fr 1.4fr auto;gap:8px;align-items:end}
+.review-form .field label{margin-top:4px}
+textarea{min-height:84px;resize:vertical}
+@media(max-width:700px){.document-row,.review-document{grid-template-columns:1fr}.review-form{grid-template-columns:1fr}}

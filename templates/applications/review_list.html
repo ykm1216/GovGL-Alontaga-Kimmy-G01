@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Review applications | GovGL{% endblock %}
+{% block content %}
+<div class="app">
+  <aside class="menu">
+    <div class="who">Signed in as<b>{{ user.username }}</b>{{ user.get_role_display }}</div>
+    <a href="{% url 'admin_dashboard' %}">Dashboard</a>
+    <a class="on" href="{% url 'review_list' %}">Review applications</a>
+  </aside>
+  <div>
+    <p class="crumb">Administrator</p>
+    <h1>Applications to review</h1>
+    <hr class="rule">
+    <div class="panel">
+      {% if applications %}
+      <div class="scroll">
+        <table>
+          <tr><th>Application</th><th>Patient</th><th>Filed by</th><th>Program</th><th>Type</th><th>Status</th><th>Submitted</th><th></th></tr>
+          {% for application in applications %}
+          <tr>
+            <td>#{{ application.pk }}</td>
+            <td>{{ application.patient_name }}</td>
+            <td>{{ application.user.get_full_name|default:application.user.username }}</td>
+            <td>{{ application.get_program_display }}</td>
+            <td>{{ application.get_assistance_type_display }}</td>
+            <td><span class="status status-{{ application.status|lower }}">{{ application.get_status_display }}</span></td>
+            <td>{{ application.submitted_at|date:"M d, Y" }}</td>
+            <td><a href="{% url 'review_detail' application.pk %}">Review</a></td>
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
+      {% else %}
+        <p>There are no submitted applications awaiting review.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

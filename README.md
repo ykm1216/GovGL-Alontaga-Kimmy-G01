@@ -7,7 +7,7 @@ GovGL helps Filipino families track Government Guarantee Letter (GL)
 applications, keep medical records in one place, and compare pharmacy
 price quotations.
 
-This repository covers **Project Development 1: the Account Feature**.
+This repository includes the account feature and the **Project Development 2 core feature: Government Guarantee Letter (GL) applications**.
 
 ## Tech Stack
 - Django (full stack, Django templates)
@@ -23,11 +23,29 @@ This repository covers **Project Development 1: the Account Feature**.
 - [x] Users cannot open another role's dashboard by typing its URL
 - [x] Profile page where users view and edit their own details
 
+## Core Feature: Guarantee Letter Applications
+- Patients can create, view, update, and delete their own draft applications.
+- An application records its assistance program, type, patient, hospital, diagnosis, and requested amount.
+- Patients upload the required supporting documents and record supplier quotations before submitting.
+- Required document and quotation checks run before submission; uploads accept PDF, JPG, and PNG files up to 5 MB.
+- Administrators can review submitted applications, accept or reject individual documents, and approve or reject the application with remarks.
+- Patients can view the status and reviewer remarks for their own applications. Administrators can access the review queue.
+- Application, document, and quotation data are stored in PostgreSQL/Supabase and related to the creating user.
+
+The program and document requirements are reference information for this academic project. Confirm current requirements with the relevant agency.
+
 ## User Roles
 | Role | Created by | Dashboard |
 |---|---|---|
 | Patient | Public registration | `/accounts/dashboard/patient/` |
 | Administrator | Set by an existing admin in `/admin/` | `/accounts/dashboard/admin/` |
+
+## Application Routes
+| Role | Page |
+|---|---|
+| Patient | `/applications/` — own applications |
+| Patient | `/applications/new/` — start an application |
+| Administrator | `/applications/review/` — review submitted applications |
 
 ## How to Run
 1. Clone the repository and open the folder
@@ -54,10 +72,12 @@ This repository covers **Project Development 1: the Account Feature**.
    ```
    python manage.py runserver
    ```
+8. Uploaded application files are served from `media/` during local development. Keep that folder private in production and configure private storage before deploying.
 
 ## Project Structure
 ```
 accounts/    registration, login, logout, dashboards, profile
+applications/ Guarantee Letter applications, document uploads, quotations, review
 govgl/       project settings and URLs
 templates/   HTML templates
 static/css/  stylesheet

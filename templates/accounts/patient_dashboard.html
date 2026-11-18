@@ -5,6 +5,9 @@
   <aside class="menu">
     <div class="who">Signed in as<b>{{ user.username }}</b>{{ user.get_role_display }}</div>
     <a class="on" href="{% url 'patient_dashboard' %}">Dashboard</a>
+    <a href="{% url 'application_list' %}">My applications</a>
+    <a href="{% url 'application_create' %}">New application</a>
+    <a href="{% url 'profile' %}">My profile</a>
   </aside>
   <div>
     <p class="crumb">Patient</p>
@@ -15,6 +18,12 @@
       <p>Name: {{ user.get_full_name|default:"-" }}</p>
       <p>E-mail address: {{ user.email }}</p>
       <p>Mobile no.: {{ user.contact_number|default:"-" }}</p>
+    </div>
+    <div class="panel dashboard-feature">
+      <h2 class="sec">Government Guarantee Letter applications</h2>
+      <p>Prepare your application, upload the required documents, and track its review status.</p>
+      <a class="btn" href="{% url 'application_create' %}">Start an application</a>
+      <a class="btn alt" href="{% url 'application_list' %}">View my applications</a>
     </div>
   </div>
 </div>
