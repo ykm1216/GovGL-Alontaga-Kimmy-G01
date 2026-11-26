@@ -6,6 +6,7 @@ Secrets and database credentials are read from a .env file (never committed).
 import os
 from pathlib import Path
 
+from django.core.exceptions import ImproperlyConfigured
 from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -13,10 +14,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")
 
 # --- Security -------------------------------------------------------------
-SECRET_KEY = os.getenv("SECRET_KEY", "dev-only-insecure-key-change-me")
+DEV_SECRET_KEY = "dev-only-insecure-key-change-me"
+SECRET_KEY = os.getenv("SECRET_KEY", DEV_SECRET_KEY)
 # DEBUG is off unless .env explicitly turns it on, so a missing .env never
 # exposes debug pages.
 DEBUG = os.getenv("DEBUG", "False") == "True"
+
+if not DEBUG and SECRET_KEY == DEV_SECRET_KEY:
+    raise ImproperlyConfigured("Set SECRET_KEY in .env before running with DEBUG=False.")
 ALLOWED_HOSTS = [h.strip() for h in os.getenv("ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")]
 
 # --- Applications ---------------------------------------------------------
