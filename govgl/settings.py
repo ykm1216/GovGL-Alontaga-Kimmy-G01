@@ -22,7 +22,16 @@ DEBUG = os.getenv("DEBUG", "False") == "True"
 
 if not DEBUG and SECRET_KEY == DEV_SECRET_KEY:
     raise ImproperlyConfigured("Set SECRET_KEY in .env before running with DEBUG=False.")
-ALLOWED_HOSTS = [h.strip() for h in os.getenv("ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")]
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in os.getenv("ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
+    if host.strip()
+]
+
+# Reject oversized form posts early. File uploads are checked separately
+# (5 MB limit in applications/forms.py).
+DATA_UPLOAD_MAX_MEMORY_SIZE = 2 * 1024 * 1024
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 200
 
 # Cookies and browser protections
 SESSION_COOKIE_HTTPONLY = True
