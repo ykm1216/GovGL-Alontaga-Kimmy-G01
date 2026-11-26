@@ -24,6 +24,21 @@ if not DEBUG and SECRET_KEY == DEV_SECRET_KEY:
     raise ImproperlyConfigured("Set SECRET_KEY in .env before running with DEBUG=False.")
 ALLOWED_HOSTS = [h.strip() for h in os.getenv("ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")]
 
+# Cookies and browser protections
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_AGE = 60 * 60 * 8  # sign users out after 8 hours
+CSRF_COOKIE_HTTPONLY = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_REFERRER_POLICY = "same-origin"
+X_FRAME_OPTIONS = "DENY"
+
+# Turn on HTTPS=True in .env only when the site is served over HTTPS.
+if os.getenv("HTTPS", "False") == "True":
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_SSL_REDIRECT = True
+    SECURE_HSTS_SECONDS = 60 * 60 * 24 * 30
+
 # --- Applications ---------------------------------------------------------
 INSTALLED_APPS = [
     "django.contrib.admin",
