@@ -14,7 +14,9 @@ load_dotenv(BASE_DIR / ".env")
 
 # --- Security -------------------------------------------------------------
 SECRET_KEY = os.getenv("SECRET_KEY", "dev-only-insecure-key-change-me")
-DEBUG = os.getenv("DEBUG", "True") == "True"
+# DEBUG is off unless .env explicitly turns it on, so a missing .env never
+# exposes debug pages.
+DEBUG = os.getenv("DEBUG", "False") == "True"
 ALLOWED_HOSTS = [h.strip() for h in os.getenv("ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")]
 
 # --- Applications ---------------------------------------------------------
