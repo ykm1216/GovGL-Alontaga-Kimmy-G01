@@ -270,3 +270,37 @@ class ApplicationReviewTests(TestCase):
         )
         self.application.refresh_from_db()
         self.assertEqual(self.application.status, GuaranteeApplication.Status.SUBMITTED)
+
+
+class ErrorPageTests(TestCase):
+    def test_unknown_url_shows_custom_404_page(self):
+        response = self.client.get("/this-page-does-not-exist/")
+        self.assertEqual(response.status_code, 404)
+        self.assertTemplateUsed(response, "404.html")
+        self.assertContains(response, "Page not found", status_code=404)
+
+    def test_other_users_application_shows_custom_404_page(self):
+        owner = CustomUser.objects.create_user(
+            username="owner", password="Test-password-123", email="owner@example.com"
+        )
+        intruder = CustomUser.objects.create_user(
+            username="intruder", password="Test-password-123", email="intruder@example.com"
+        )
+        application = create_application(owner)
+        self.client.force_login(intruder)
+        response = self.client.get(reverse("application_detail", args=[application.pk]))
+        self.assertTemplateUsed(response, "404.html")
+
+    def test_500_page_renders_without_request_context(self):
+        from django.template.loader import render_to_string
+
+        html = render_to_string("500.html")
+        self.assertIn("Something went wrong", html)
+
+    def test_missing_csrf_token_shows_expired_form_page(self):
+        from django.test import Client
+
+        client = Client(enforce_csrf_checks=True)
+        response = client.post(reverse("login"), {"username": "a", "password": "b"})
+        self.assertEqual(response.status_code, 403)
+        self.assertContains(response, "This form has expired", status_code=403)
