@@ -124,6 +124,11 @@ class ApplicationWorkflowTests(TestCase):
                 role=CustomUser.Role.ADMIN,
             )
             self.client.force_login(admin)
+            # Admins cannot open files on a patient's unsubmitted draft.
+            self.assertEqual(self.client.get(download_url).status_code, 404)
+
+            application.status = GuaranteeApplication.Status.SUBMITTED
+            application.save(update_fields=("status",))
             admin_download = self.client.get(download_url)
             self.assertEqual(admin_download.status_code, 200)
             admin_download.close()

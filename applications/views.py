@@ -49,6 +49,17 @@ def owned_application(user, application_id):
     return get_object_or_404(GuaranteeApplication, pk=application_id, user=user)
 
 
+def can_download(user, application):
+    """Owners can always download their files. Admins can only download files
+    from applications that were submitted, never from a patient's draft."""
+    if application.user_id == user.pk:
+        return True
+    return (
+        user.role == CustomUser.Role.ADMIN
+        and application.status != GuaranteeApplication.Status.DRAFT
+    )
+
+
 @patient_required
 def application_list_view(request):
     applications = GuaranteeApplication.objects.filter(user=request.user)
@@ -104,10 +115,7 @@ def document_download_view(request, document_id):
         ApplicationDocument.objects.select_related("application"),
         pk=document_id,
     )
-    if (
-        request.user.role != CustomUser.Role.ADMIN
-        and document.application.user_id != request.user.pk
-    ):
+    if not can_download(request.user, document.application):
         raise Http404
     return FileResponse(
         document.file.open("rb"),
@@ -122,10 +130,7 @@ def quotation_download_view(request, quotation_id):
         ApplicationQuotation.objects.select_related("application"),
         pk=quotation_id,
     )
-    if (
-        request.user.role != CustomUser.Role.ADMIN
-        and quotation.application.user_id != request.user.pk
-    ):
+    if not can_download(request.user, quotation.application):
         raise Http404
     if not quotation.file:
         raise Http404
