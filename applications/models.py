@@ -1,5 +1,24 @@
+import uuid
+from pathlib import Path
+
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
+
+
+def _random_upload_path(folder, filename):
+    """Store uploads under a random name so personal details in the original
+    filename are never part of the storage path."""
+    extension = Path(filename).suffix.lower()
+    return f"{folder}/{timezone.now():%Y/%m}/{uuid.uuid4().hex}{extension}"
+
+
+def document_upload_path(instance, filename):
+    return _random_upload_path("applications", filename)
+
+
+def quotation_upload_path(instance, filename):
+    return _random_upload_path("quotations", filename)
 
 
 class GuaranteeApplication(models.Model):
@@ -78,7 +97,7 @@ class ApplicationDocument(models.Model):
         related_name="documents",
     )
     kind = models.CharField(max_length=30, choices=Kind.choices)
-    file = models.FileField(upload_to="applications/%Y/%m/")
+    file = models.FileField(upload_to=document_upload_path)
     review_status = models.CharField(
         max_length=12,
         choices=ReviewStatus.choices,
@@ -121,7 +140,7 @@ class ApplicationQuotation(models.Model):
     items = models.CharField(max_length=300)
     status = models.CharField(max_length=12, choices=Status.choices, default=Status.REQUESTED)
     amount = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    file = models.FileField(upload_to="quotations/%Y/%m/", blank=True)
+    file = models.FileField(upload_to=quotation_upload_path, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
