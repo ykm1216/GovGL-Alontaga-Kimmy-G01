@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Form expired | GovGL{% endblock %}
+{% block content %}
+<p class="crumb">Error 403</p>
+<h1>This form has expired</h1>
+<hr class="rule">
+<div class="panel narrow">
+  <p>For your security, the form could not be accepted. Go back, reload the page,
+  and submit it again.</p>
+  <div class="actions"><a class="btn" href="{% url 'home' %}">Go to the home page</a></div>
+</div>
+{% endblock %}
