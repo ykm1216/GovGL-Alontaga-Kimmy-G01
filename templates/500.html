@@ -1,0 +1,30 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Something went wrong | GovGL</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+  {# Rendered without request context: no user, messages or CSRF here. #}
+  <header class="brandbar">
+    <div>
+      <div class="brand-name">GovGL</div>
+      <div class="brand-tag">Quotations and Government Guarantee Letters Tracker</div>
+    </div>
+  </header>
+  <nav class="navband"><a href="/">Home</a></nav>
+  <main class="page">
+    <p class="crumb">Error 500</p>
+    <h1>Something went wrong</h1>
+    <hr class="rule">
+    <div class="panel narrow">
+      <p>We could not finish your request. Your saved applications are not affected.
+      Please try again in a few minutes.</p>
+      <div class="actions"><a class="btn" href="/">Go to the home page</a></div>
+    </div>
+  </main>
+</body>
+</html>

@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Bad request | GovGL{% endblock %}
+{% block content %}
+<p class="crumb">Error 400</p>
+<h1>Bad request</h1>
+<hr class="rule">
+<div class="panel narrow">
+  <p>Your request could not be processed. Check the address or form and try again.</p>
+  <div class="actions"><a class="btn" href="{% url 'home' %}">Go to the home page</a></div>
+</div>
+{% endblock %}
