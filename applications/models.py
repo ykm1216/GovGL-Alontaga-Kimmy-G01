@@ -157,7 +157,12 @@ class ApplicationQuotation(models.Model):
                 name="quotation_amount_not_negative",
             ),
             models.CheckConstraint(
-                condition=~models.Q(status="RECEIVED") | models.Q(amount__gt=0),
+                condition=(
+                    ~models.Q(status="RECEIVED")
+                    # NULL > 0 is "unknown" in SQL, which a CHECK lets through,
+                    # so the amount must be explicitly non-null as well.
+                    | models.Q(amount__isnull=False, amount__gt=0)
+                ),
                 name="received_quotation_has_amount",
             ),
         ]
