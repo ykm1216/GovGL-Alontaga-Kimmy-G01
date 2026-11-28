@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
+from django.db.models import Count, Q
 from django.shortcuts import redirect, render
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
@@ -79,12 +80,15 @@ def admin_dashboard_view(request):
     if request.user.role != CustomUser.Role.ADMIN:
         messages.error(request, "You do not have access to that page.")
         return redirect("dashboard")
-    users = CustomUser.objects.order_by("-date_joined")
+    # One query for all three totals instead of three separate counts.
+    totals = CustomUser.objects.aggregate(
+        total_users=Count("pk"),
+        total_patients=Count("pk", filter=Q(role=CustomUser.Role.PATIENT)),
+        total_admins=Count("pk", filter=Q(role=CustomUser.Role.ADMIN)),
+    )
     context = {
-        "total_users": users.count(),
-        "total_patients": users.filter(role=CustomUser.Role.PATIENT).count(),
-        "total_admins": users.filter(role=CustomUser.Role.ADMIN).count(),
-        "recent_users": users[:10],
+        **totals,
+        "recent_users": CustomUser.objects.order_by("-date_joined")[:10],
     }
     return render(request, "accounts/admin_dashboard.html", context)
 
