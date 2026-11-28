@@ -55,8 +55,19 @@ def delete_file_after_commit(field_file):
     transaction.on_commit(lambda: storage.delete(name))
 
 
-def owned_application(user, application_id):
-    return get_object_or_404(GuaranteeApplication, pk=application_id, user=user)
+def owned_application(user, application_id, lock=False):
+    queryset = GuaranteeApplication.objects.all()
+    if lock:
+        # Lock the row until the transaction ends so two requests cannot
+        # change the same application at once.
+        queryset = queryset.select_for_update()
+    return get_object_or_404(queryset, pk=application_id, user=user)
+
+
+def reviewable_application(application_id):
+    return get_object_or_404(
+        GuaranteeApplication.objects.select_for_update(), pk=application_id
+    )
 
 
 def can_download(user, application):
@@ -288,8 +299,9 @@ def quotation_delete_view(request, application_id, quotation_id):
 
 @require_POST
 @patient_required
+@transaction.atomic
 def application_submit_view(request, application_id):
-    application = owned_application(request.user, application_id)
+    application = owned_application(request.user, application_id, lock=True)
     if application.status != GuaranteeApplication.Status.DRAFT:
         messages.error(request, "This application has already been submitted.")
         return redirect("application_detail", application_id=application.pk)
@@ -366,8 +378,9 @@ def review_detail_view(request, application_id):
 
 @require_POST
 @admin_required
+@transaction.atomic
 def document_review_view(request, application_id, document_id):
-    application = get_object_or_404(GuaranteeApplication, pk=application_id)
+    application = reviewable_application(application_id)
     if application.status not in (
         GuaranteeApplication.Status.SUBMITTED,
         GuaranteeApplication.Status.UNDER_REVIEW,
@@ -391,8 +404,9 @@ def document_review_view(request, application_id, document_id):
 
 @require_POST
 @admin_required
+@transaction.atomic
 def application_review_view(request, application_id):
-    application = get_object_or_404(GuaranteeApplication, pk=application_id)
+    application = reviewable_application(application_id)
     if application.status not in (
         GuaranteeApplication.Status.SUBMITTED,
         GuaranteeApplication.Status.UNDER_REVIEW,
