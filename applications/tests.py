@@ -275,3 +275,66 @@ class ApplicationReviewTests(TestCase):
         )
         self.application.refresh_from_db()
         self.assertEqual(self.application.status, GuaranteeApplication.Status.SUBMITTED)
+
+
+class DataIntegrityTests(TestCase):
+    def setUp(self):
+        self.patient = CustomUser.objects.create_user(
+            username="integrity",
+            password="Test-password-123",
+            email="integrity@example.com",
+            role=CustomUser.Role.PATIENT,
+        )
+
+    def test_database_rejects_non_positive_requested_amount(self):
+        from django.db import IntegrityError, transaction
+
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            create_application(self.patient, amount_requested="0")
+
+    def test_database_rejects_received_quotation_without_amount(self):
+        from django.db import IntegrityError, transaction
+
+        application = create_application(self.patient)
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            ApplicationQuotation.objects.create(
+                application=application,
+                supplier="Pharmacy",
+                items="Medicine",
+                status=ApplicationQuotation.Status.RECEIVED,
+                amount=None,
+            )
+
+    def test_deleting_a_draft_removes_its_files_after_commit(self):
+        from django.core.files.storage import default_storage
+
+        with TemporaryDirectory() as media_root, override_settings(MEDIA_ROOT=media_root):
+            application = create_application(self.patient)
+            document = ApplicationDocument.objects.create(
+                application=application,
+                kind=ApplicationDocument.Kind.PATIENT_ID,
+                file=SimpleUploadedFile("id.pdf", b"%PDF-1.4\nid"),
+            )
+            stored_name = document.file.name
+            self.assertTrue(default_storage.exists(stored_name))
+
+            self.client.force_login(self.patient)
+            with self.captureOnCommitCallbacks(execute=True):
+                self.client.post(reverse("application_delete", args=[application.pk]))
+
+            self.assertFalse(default_storage.exists(stored_name))
+            self.assertFalse(GuaranteeApplication.objects.filter(pk=application.pk).exists())
+
+    def test_admin_dashboard_shows_user_totals(self):
+        admin = CustomUser.objects.create_user(
+            username="boss",
+            password="Test-password-123",
+            email="boss@example.com",
+            role=CustomUser.Role.ADMIN,
+        )
+        self.client.force_login(admin)
+        response = self.client.get(reverse("admin_dashboard"))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["total_users"], 2)
+        self.assertEqual(response.context["total_patients"], 1)
+        self.assertEqual(response.context["total_admins"], 1)
