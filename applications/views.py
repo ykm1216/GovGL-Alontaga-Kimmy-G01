@@ -3,6 +3,7 @@ from pathlib import PurePosixPath
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db import transaction
 from django.http import FileResponse, Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -43,6 +44,15 @@ def role_required(role):
 
 patient_required = role_required(CustomUser.Role.PATIENT)
 admin_required = role_required(CustomUser.Role.ADMIN)
+
+
+def delete_file_after_commit(field_file):
+    """Remove a stored file only once the database change is saved, so a
+    failed transaction never leaves a record pointing at a missing file."""
+    if not field_file:
+        return
+    storage, name = field_file.storage, field_file.name
+    transaction.on_commit(lambda: storage.delete(name))
 
 
 def owned_application(user, application_id):
@@ -172,12 +182,12 @@ def application_delete_view(request, application_id):
         messages.error(request, "Only draft applications can be deleted.")
         return redirect("application_detail", application_id=application.pk)
 
-    for document in application.documents.all():
-        document.file.delete(save=False)
-    for quotation in application.quotations.all():
-        if quotation.file:
-            quotation.file.delete(save=False)
-    application.delete()
+    with transaction.atomic():
+        for document in application.documents.all():
+            delete_file_after_commit(document.file)
+        for quotation in application.quotations.all():
+            delete_file_after_commit(quotation.file)
+        application.delete()
     messages.success(request, "The draft application was deleted.")
     return redirect("application_list")
 
@@ -194,23 +204,26 @@ def document_upload_view(request, application_id, kind):
 
     form = DocumentUploadForm(request.POST, request.FILES)
     if form.is_valid():
-        document = ApplicationDocument.objects.filter(
-            application=application,
-            kind=kind,
-        ).first()
-        if document:
-            document.file.delete(save=False)
-            document.file = form.cleaned_data["file"]
-        else:
-            document = ApplicationDocument(
-                application=application,
-                kind=kind,
-                file=form.cleaned_data["file"],
+        with transaction.atomic():
+            document = (
+                ApplicationDocument.objects.select_for_update()
+                .filter(application=application, kind=kind)
+                .first()
             )
-        document.review_status = ApplicationDocument.ReviewStatus.PENDING
-        document.review_note = ""
-        document.reviewed_by = None
-        document.save()
+            if document:
+                # Keep the old file until the new one is saved.
+                delete_file_after_commit(document.file)
+                document.file = form.cleaned_data["file"]
+            else:
+                document = ApplicationDocument(
+                    application=application,
+                    kind=kind,
+                    file=form.cleaned_data["file"],
+                )
+            document.review_status = ApplicationDocument.ReviewStatus.PENDING
+            document.review_note = ""
+            document.reviewed_by = None
+            document.save()
         messages.success(request, "The document was uploaded.")
     else:
         for error in form.errors.get("file", []):
@@ -226,8 +239,9 @@ def document_delete_view(request, application_id, document_id):
         messages.error(request, "Documents can only be changed on draft applications.")
         return redirect("application_detail", application_id=application.pk)
     document = get_object_or_404(ApplicationDocument, pk=document_id, application=application)
-    document.file.delete(save=False)
-    document.delete()
+    with transaction.atomic():
+        delete_file_after_commit(document.file)
+        document.delete()
     messages.success(request, "The document was removed.")
     return redirect("application_detail", application_id=application.pk)
 
@@ -265,9 +279,9 @@ def quotation_delete_view(request, application_id, quotation_id):
         pk=quotation_id,
         application=application,
     )
-    if quotation.file:
-        quotation.file.delete(save=False)
-    quotation.delete()
+    with transaction.atomic():
+        delete_file_after_commit(quotation.file)
+        quotation.delete()
     messages.success(request, "The quotation was removed.")
     return redirect("application_detail", application_id=application.pk)
 
