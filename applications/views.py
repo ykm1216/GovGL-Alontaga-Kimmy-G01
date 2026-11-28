@@ -105,7 +105,11 @@ def application_create_view(request):
 
 @patient_required
 def application_detail_view(request, application_id):
-    application = owned_application(request.user, application_id)
+    application = get_object_or_404(
+        GuaranteeApplication.objects.prefetch_related("documents", "quotations"),
+        pk=application_id,
+        user=request.user,
+    )
     required_kinds = required_document_kinds(application.assistance_type)
     documents = {document.kind: document for document in application.documents.all()}
     checklist = [
@@ -123,9 +127,11 @@ def application_detail_view(request, application_id):
         "document_upload_form": DocumentUploadForm(),
         "quotation_form": ApplicationQuotationForm(),
         "required_quotes": required_quotation_count(application.assistance_type),
-        "received_quotes": application.quotations.filter(
-            status=ApplicationQuotation.Status.RECEIVED
-        ).count(),
+        "received_quotes": sum(
+            1
+            for quotation in application.quotations.all()
+            if quotation.status == ApplicationQuotation.Status.RECEIVED
+        ),
     }
     return render(request, "applications/detail.html", context)
 
@@ -348,7 +354,12 @@ def review_list_view(request):
 
 @admin_required
 def review_detail_view(request, application_id):
-    application = get_object_or_404(GuaranteeApplication, pk=application_id)
+    application = get_object_or_404(
+        GuaranteeApplication.objects.select_related("user").prefetch_related(
+            "documents", "quotations"
+        ),
+        pk=application_id,
+    )
     if application.status not in (
         GuaranteeApplication.Status.SUBMITTED,
         GuaranteeApplication.Status.UNDER_REVIEW,
