@@ -72,6 +72,12 @@ class GuaranteeApplication(models.Model):
 
     class Meta:
         ordering = ("-created_at",)
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(amount_requested__gt=0),
+                name="application_amount_positive",
+            ),
+        ]
 
     def __str__(self):
         return f"Application #{self.pk} - {self.patient_name}"
@@ -145,6 +151,16 @@ class ApplicationQuotation(models.Model):
 
     class Meta:
         ordering = ("created_at",)
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(amount__isnull=True) | models.Q(amount__gte=0),
+                name="quotation_amount_not_negative",
+            ),
+            models.CheckConstraint(
+                condition=~models.Q(status="RECEIVED") | models.Q(amount__gt=0),
+                name="received_quotation_has_amount",
+            ),
+        ]
 
     def __str__(self):
         return f"{self.supplier} quote for application #{self.application_id}"
